@@ -1,7 +1,17 @@
 "use client"
 
 import Image from "next/image"
-import { TouchEvent, useRef, useState } from "react"
+import { useEffect, useState } from "react"
+// Импортируем Swiper и необходимые модули
+import {
+	Autoplay,
+	EffectCoverflow,
+	Navigation,
+	Pagination,
+} from "swiper/modules"
+import { Swiper, SwiperSlide } from "swiper/react"
+
+// Стили Swiper теперь импортируются в layout.tsx
 
 const testimonials = [
 	{
@@ -43,74 +53,12 @@ const testimonials = [
 ]
 
 const Testimonials = () => {
-	const [activeIndex, setActiveIndex] = useState(0)
-	const [direction, setDirection] = useState<"left" | "right" | null>(null)
-	const [isAnimating, setIsAnimating] = useState(false)
-	const touchStartX = useRef(0)
-	const touchEndX = useRef(0)
-	const isSwiping = useRef(false)
+	const [domLoaded, setDomLoaded] = useState(false)
 
-	// Минимальное расстояние свайпа для переключения слайда
-	const minSwipeDistance = 50
-
-	const handlePrev = () => {
-		if (isAnimating) return
-		setDirection("right")
-		setIsAnimating(true)
-		setTimeout(() => {
-			setActiveIndex(prev => (prev === 0 ? testimonials.length - 1 : prev - 1))
-			setIsAnimating(false)
-		}, 300) // Задержка должна соответствовать длительности анимации
-	}
-
-	const handleNext = () => {
-		if (isAnimating) return
-		setDirection("left")
-		setIsAnimating(true)
-		setTimeout(() => {
-			setActiveIndex(prev => (prev === testimonials.length - 1 ? 0 : prev + 1))
-			setIsAnimating(false)
-		}, 300) // Задержка должна соответствовать длительности анимации
-	}
-
-	// Обработчики свайпа
-	const handleTouchStart = (e: TouchEvent) => {
-		touchStartX.current = e.touches[0].clientX
-		isSwiping.current = true
-	}
-
-	const handleTouchMove = (e: TouchEvent) => {
-		if (!isSwiping.current) return
-		touchEndX.current = e.touches[0].clientX
-	}
-
-	const handleTouchEnd = () => {
-		if (!isSwiping.current) return
-
-		const distance = touchStartX.current - touchEndX.current
-
-		// Если расстояние свайпа достаточное, меняем слайд
-		if (Math.abs(distance) > minSwipeDistance) {
-			if (distance > 0) {
-				// Свайп влево -> следующий слайд
-				handleNext()
-			} else {
-				// Свайп вправо -> предыдущий слайд
-				handlePrev()
-			}
-		}
-
-		// Сбрасываем состояние свайпа
-		isSwiping.current = false
-	}
-
-	// Получаем класс для анимации в зависимости от направления
-	const getAnimationClass = () => {
-		if (!isAnimating) return ""
-		if (direction === "left") return "animate-slide-out-left"
-		if (direction === "right") return "animate-slide-out-right"
-		return ""
-	}
+	// Swiper требует, чтобы мы отрендерили его только на клиенте
+	useEffect(() => {
+		setDomLoaded(true)
+	}, [])
 
 	return (
 		<section className="py-16 bg-gray-900 text-white">
@@ -125,129 +73,85 @@ const Testimonials = () => {
 					</p>
 				</div>
 
-				<div
-					className="max-w-4xl mx-auto cursor-pointer touch-pan-x"
-					onTouchStart={handleTouchStart}
-					onTouchMove={handleTouchMove}
-					onTouchEnd={handleTouchEnd}
-				>
-					<div className="relative overflow-hidden">
-						{/* Testimonial with touch events */}
-						<div
-							className={`p-8 bg-gray-800 rounded-lg shadow-xl transition-all duration-300 cursor-pointer hover:bg-gray-700 ${getAnimationClass()}`}
-							style={{
-								transform: isAnimating
-									? direction === "left"
-										? "translateX(-10%)"
-										: "translateX(10%)"
-									: "translateX(0)",
-								opacity: isAnimating ? 0.7 : 1,
+				<div className="max-w-4xl mx-auto">
+					{domLoaded && (
+						<Swiper
+							modules={[EffectCoverflow, Navigation, Pagination, Autoplay]}
+							effect="coverflow"
+							grabCursor={true}
+							centeredSlides={true}
+							coverflowEffect={{
+								rotate: 0,
+								stretch: 0,
+								depth: 100,
+								modifier: 2.5,
+								slideShadows: false,
 							}}
+							initialSlide={1}
+							slidesPerView={"auto"}
+							spaceBetween={30}
+							navigation={{
+								nextEl: ".swiper-button-next",
+								prevEl: ".swiper-button-prev",
+							}}
+							pagination={{
+								clickable: true,
+								el: ".swiper-pagination",
+							}}
+							autoplay={{
+								delay: 5000,
+								disableOnInteraction: false,
+								pauseOnMouseEnter: true,
+							}}
+							loop={true}
+							className="testimonials-swiper cursor-pointer"
 						>
-							<div className="flex flex-col md:flex-row md:items-center mb-6">
-								<div className="relative w-20 h-20 rounded-full overflow-hidden mb-4 md:mb-0 md:mr-4">
-									<Image
-										src={testimonials[activeIndex].image}
-										alt={testimonials[activeIndex].name}
-										fill
-										className="object-cover"
-									/>
-								</div>
-								<div>
-									<h3 className="text-xl font-bold">
-										{testimonials[activeIndex].name}
-									</h3>
-									<p className="text-red-400">
-										{testimonials[activeIndex].position}
-									</p>
-								</div>
-							</div>
-							<div className="mb-6">
-								<svg
-									className="h-8 w-8 text-red-500 mb-4"
-									fill="currentColor"
-									viewBox="0 0 24 24"
+							{testimonials.map(testimonial => (
+								<SwiperSlide
+									key={testimonial.id}
+									className="!w-full max-w-3xl mx-auto"
 								>
-									<path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
-								</svg>
-								<p className="text-lg text-gray-300">
-									{testimonials[activeIndex].content}
-								</p>
-							</div>
-						</div>
+									<div className="p-8 bg-gray-800 rounded-lg shadow-xl transition-all duration-300 hover:bg-gray-700">
+										<div className="flex flex-col md:flex-row md:items-center mb-6">
+											<div className="relative w-20 h-20 rounded-full overflow-hidden mb-4 md:mb-0 md:mr-4">
+												<Image
+													src={testimonial.image}
+													alt={testimonial.name}
+													fill
+													className="object-cover"
+												/>
+											</div>
+											<div>
+												<h3 className="text-xl font-bold">
+													{testimonial.name}
+												</h3>
+												<p className="text-red-400">{testimonial.position}</p>
+											</div>
+										</div>
+										<div className="mb-2">
+											<svg
+												className="h-8 w-8 text-red-500 mb-4"
+												fill="currentColor"
+												viewBox="0 0 24 24"
+											>
+												<path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
+											</svg>
+											<p className="text-lg text-gray-300">
+												{testimonial.content}
+											</p>
+										</div>
+									</div>
+								</SwiperSlide>
+							))}
 
-						{/* Navigation buttons */}
-						<button
-							className="absolute top-1/2 left-0 -translate-y-1/2 -translate-x-12 bg-red-600 rounded-full p-2 shadow-lg hidden md:block hover:bg-red-700"
-							onClick={handlePrev}
-							disabled={isAnimating}
-						>
-							<svg
-								className="h-6 w-6 text-white"
-								fill="none"
-								viewBox="0 0 24 24"
-								stroke="currentColor"
-							>
-								<path
-									strokeLinecap="round"
-									strokeLinejoin="round"
-									strokeWidth={2}
-									d="M15 19l-7-7 7-7"
-								/>
-							</svg>
-						</button>
-						<button
-							className="absolute top-1/2 right-0 -translate-y-1/2 translate-x-12 bg-red-600 rounded-full p-2 shadow-lg hidden md:block hover:bg-red-700"
-							onClick={handleNext}
-							disabled={isAnimating}
-						>
-							<svg
-								className="h-6 w-6 text-white"
-								fill="none"
-								viewBox="0 0 24 24"
-								stroke="currentColor"
-							>
-								<path
-									strokeLinecap="round"
-									strokeLinejoin="round"
-									strokeWidth={2}
-									d="M9 5l7 7-7 7"
-								/>
-							</svg>
-						</button>
-					</div>
+							{/* Кастомные кнопки навигации */}
+							<div className="swiper-button-prev"></div>
+							<div className="swiper-button-next"></div>
 
-					{/* Dots for mobile */}
-					<div className="flex justify-center gap-2 mt-6 md:hidden">
-						{testimonials.map((_, index) => (
-							<button
-								key={index}
-								className={`h-3 w-3 rounded-full ${
-									index === activeIndex ? "bg-red-600" : "bg-gray-600"
-								}`}
-								onClick={() => !isAnimating && setActiveIndex(index)}
-								disabled={isAnimating}
-								aria-label={`View testimonial ${index + 1}`}
-							/>
-						))}
-					</div>
-
-					{/* Desktop Indicators */}
-					<div className="hidden md:flex justify-center gap-3 mt-8">
-						{testimonials.map((_, index) => (
-							<button
-								key={index}
-								className={`h-4 w-4 rounded-full transition-colors duration-300 ${
-									index === activeIndex
-										? "bg-red-600"
-										: "bg-gray-600 hover:bg-gray-500"
-								}`}
-								onClick={() => !isAnimating && setActiveIndex(index)}
-								disabled={isAnimating}
-								aria-label={`View testimonial ${index + 1}`}
-							/>
-						))}
-					</div>
+							{/* Кастомная пагинация */}
+							<div className="swiper-pagination !static mt-8"></div>
+						</Swiper>
+					)}
 				</div>
 			</div>
 		</section>

@@ -55,3 +55,44 @@ body {
 .animate-slide-out-right {
 	animation: slideOutRight 0.3s forwards;
 }
+
+/* Стили для Swiper */
+.testimonials-swiper {
+	position: relative;
+	padding-bottom: 40px;
+}
+
+.testimonials-swiper .swiper-pagination-bullet {
+	width: 10px;
+	height: 10px;
+	background-color: #4b5563; /* gray-600 */
+	opacity: 1;
+	transition: all 0.3s ease;
+}
+
+.testimonials-swiper .swiper-pagination-bullet-active {
+	background-color: #dc2626; /* red-600 */
+	width: 12px;
+	height: 12px;
+}
+
+.testimonials-swiper .swiper-button-next,
+.testimonials-swiper .swiper-button-prev {
+	color: #ffffff;
+	background-color: #dc2626; /* red-600 */
+	width: 40px;
+	height: 40px;
+	border-radius: 50%;
+	transition: all 0.3s ease;
+}
+
+.testimonials-swiper .swiper-button-next:hover,
+.testimonials-swiper .swiper-button-prev:hover {
+	background-color: #b91c1c; /* red-700 */
+}
+
+.testimonials-swiper .swiper-button-next:after,
+.testimonials-swiper .swiper-button-prev:after {
+	font-size: 18px;
+	font-weight: bold;
+}
