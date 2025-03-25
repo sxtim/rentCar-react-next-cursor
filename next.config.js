@@ -10,7 +10,7 @@ const nextConfig = {
 			},
 		],
 	},
-	basePath: "/projects/test", // Базовый путь GitHub Pages
+	basePath: "/rentCar-react-next-cursor", // Базовый путь GitHub Pages
 	trailingSlash: true, // Добавляет слэш в конце URL для совместимости с GitHub Pages
 }
 

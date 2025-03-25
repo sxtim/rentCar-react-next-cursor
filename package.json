@@ -2,7 +2,7 @@
 	"name": "test",
 	"version": "0.1.0",
 	"private": true,
-	"homepage": "https://REPLACE_WITH_YOUR_GITHUB_USERNAME.github.io/projects/test",
+	"homepage": "https://sxtim.github.io/rentCar-react-next-cursor",
 	"scripts": {
 		"dev": "next dev --turbopack",
 		"build": "next build",

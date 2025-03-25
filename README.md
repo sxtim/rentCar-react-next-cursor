@@ -36,4 +36,4 @@ npm start
 
 ## Демонстрация
 
-Демо сайта доступно по адресу: [https://REPLACE_WITH_YOUR_GITHUB_USERNAME.github.io/projects/test](https://REPLACE_WITH_YOUR_GITHUB_USERNAME.github.io/projects/test)
+Демо сайта доступно по адресу: [https://sxtim.github.io/rentCar-react-next-cursor](https://sxtim.github.io/rentCar-react-next-cursor)
