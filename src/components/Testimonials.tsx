@@ -1,7 +1,7 @@
 "use client"
 
 import Image from "next/image"
-import { useState } from "react"
+import { TouchEvent, useRef, useState } from "react"
 
 const testimonials = [
 	{
@@ -44,6 +44,12 @@ const testimonials = [
 
 const Testimonials = () => {
 	const [activeIndex, setActiveIndex] = useState(0)
+	const touchStartX = useRef(0)
+	const touchEndX = useRef(0)
+	const isSwiping = useRef(false)
+
+	// Минимальное расстояние свайпа для переключения слайда
+	const minSwipeDistance = 50
 
 	const handlePrev = () => {
 		setActiveIndex(prev => (prev === 0 ? testimonials.length - 1 : prev - 1))
@@ -51,6 +57,37 @@ const Testimonials = () => {
 
 	const handleNext = () => {
 		setActiveIndex(prev => (prev === testimonials.length - 1 ? 0 : prev + 1))
+	}
+
+	// Обработчики свайпа
+	const handleTouchStart = (e: TouchEvent) => {
+		touchStartX.current = e.touches[0].clientX
+		isSwiping.current = true
+	}
+
+	const handleTouchMove = (e: TouchEvent) => {
+		if (!isSwiping.current) return
+		touchEndX.current = e.touches[0].clientX
+	}
+
+	const handleTouchEnd = () => {
+		if (!isSwiping.current) return
+
+		const distance = touchStartX.current - touchEndX.current
+
+		// Если расстояние свайпа достаточное, меняем слайд
+		if (Math.abs(distance) > minSwipeDistance) {
+			if (distance > 0) {
+				// Свайп влево -> следующий слайд
+				handleNext()
+			} else {
+				// Свайп вправо -> предыдущий слайд
+				handlePrev()
+			}
+		}
+
+		// Сбрасываем состояние свайпа
+		isSwiping.current = false
 	}
 
 	return (
@@ -68,8 +105,13 @@ const Testimonials = () => {
 
 				<div className="max-w-4xl mx-auto">
 					<div className="relative">
-						{/* Testimonial */}
-						<div className="p-8 bg-gray-800 rounded-lg shadow-xl">
+						{/* Testimonial with touch events */}
+						<div
+							className="p-8 bg-gray-800 rounded-lg shadow-xl transition-transform duration-300 cursor-pointer hover:bg-gray-700"
+							onTouchStart={handleTouchStart}
+							onTouchMove={handleTouchMove}
+							onTouchEnd={handleTouchEnd}
+						>
 							<div className="flex flex-col md:flex-row md:items-center mb-6">
 								<div className="relative w-20 h-20 rounded-full overflow-hidden mb-4 md:mb-0 md:mr-4">
 									<Image
