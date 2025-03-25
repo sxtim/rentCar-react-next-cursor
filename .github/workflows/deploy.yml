@@ -10,6 +10,10 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # Права на запись контента для gh-pages branch
+      pages: write # Права на публикацию GitHub Pages
+      id-token: write # Необходимо для верификации деплоя
 
     steps:
       - name: Checkout code
