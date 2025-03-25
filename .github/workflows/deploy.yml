@@ -25,14 +25,34 @@ jobs:
           node-version: "18"
           cache: "npm"
 
+      # Кеширование зависимостей
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.npm
+            ${{ github.workspace }}/.next/cache
+          # Генерируем ключ кеша на основе хеша package-lock.json
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**.[jt]s', '**.[jt]sx') }}
+          restore-keys: |
+            ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-
+
       - name: Install dependencies
         run: npm ci
 
       - name: Build project
         run: npm run build
+        env:
+          # Включаем экспериментальную функцию кеширования сборки
+          NEXT_TELEMETRY_DISABLED: 1
+          NEXT_CACHE_DIR: .next/cache
+
+      - name: Add .nojekyll file
+        run: touch out/.nojekyll
 
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: out # Директория, которую Next.js создает при статическом экспорте
           branch: gh-pages # Ветка, в которую будет делаться деплой
+          clean: true # Очистить ветку gh-pages перед деплоем
