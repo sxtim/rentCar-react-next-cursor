@@ -12,18 +12,10 @@ const nextConfig = {
 	},
 	basePath: "/rentCar-react-next-cursor", // Базовый путь GitHub Pages
 	trailingSlash: true, // Добавляет слэш в конце URL для совместимости с GitHub Pages
-	assetPrefix: "/rentCar-react-next-cursor/", // Префикс для ассетов (JS, CSS)
 
-	// Настройки для оптимизации и кеширования
-	experimental: {
-		turboDrive: false, // Отключаем для статического экспорта
-		optimizeCss: true, // Оптимизация CSS
-	},
-
-	// Улучшения производительности
+	// Базовые улучшения производительности
 	reactStrictMode: true,
 	swcMinify: true, // Использовать SWC для минификации
-	compress: true, // Сжимать ответы
 }
 
 module.exports = nextConfig

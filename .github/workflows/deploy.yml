@@ -7,52 +7,63 @@ on:
   # Позволяет запустить workflow вручную
   workflow_dispatch:
 
-jobs:
-  build-and-deploy:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write # Права на запись контента для gh-pages branch
-      pages: write # Права на публикацию GitHub Pages
-      id-token: write # Необходимо для верификации деплоя
+# Разрешения необходимы для публикации GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
 
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: "18"
           cache: "npm"
 
-      # Кеширование зависимостей
-      - name: Cache dependencies
-        uses: actions/cache@v3
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
         with:
-          path: |
-            ~/.npm
-            ${{ github.workspace }}/.next/cache
-          # Генерируем ключ кеша на основе хеша package-lock.json
-          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**.[jt]s', '**.[jt]sx') }}
-          restore-keys: |
-            ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-
+          static_site_generator: next
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Build project
+      - name: Build with Next.js
         run: npm run build
-        env:
-          # Включаем экспериментальную функцию кеширования сборки
-          NEXT_TELEMETRY_DISABLED: 1
-          NEXT_CACHE_DIR: .next/cache
 
-      - name: Add .nojekyll file
-        run: touch out/.nojekyll
+      - name: Prepare output directory
+        run: |
+          touch ./out/.nojekyll
+          echo "Listing output directory structure:"
+          find ./out -type f | sort
 
-      - name: Deploy to GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@v4
+      - name: Fix paths in HTML files
+        run: |
+          echo "Ensuring paths are correct in HTML files"
+          grep -r "/rentCar-react-next-cursor" ./out --include="*.html" || echo "No matching paths found"
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          folder: out # Директория, которую Next.js создает при статическом экспорте
-          branch: gh-pages # Ветка, в которую будет делаться деплой
-          clean: true # Очистить ветку gh-pages перед деплоем
+          path: ./out
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
