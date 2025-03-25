@@ -44,6 +44,8 @@ const testimonials = [
 
 const Testimonials = () => {
 	const [activeIndex, setActiveIndex] = useState(0)
+	const [direction, setDirection] = useState<"left" | "right" | null>(null)
+	const [isAnimating, setIsAnimating] = useState(false)
 	const touchStartX = useRef(0)
 	const touchEndX = useRef(0)
 	const isSwiping = useRef(false)
@@ -52,11 +54,23 @@ const Testimonials = () => {
 	const minSwipeDistance = 50
 
 	const handlePrev = () => {
-		setActiveIndex(prev => (prev === 0 ? testimonials.length - 1 : prev - 1))
+		if (isAnimating) return
+		setDirection("right")
+		setIsAnimating(true)
+		setTimeout(() => {
+			setActiveIndex(prev => (prev === 0 ? testimonials.length - 1 : prev - 1))
+			setIsAnimating(false)
+		}, 300) // Задержка должна соответствовать длительности анимации
 	}
 
 	const handleNext = () => {
-		setActiveIndex(prev => (prev === testimonials.length - 1 ? 0 : prev + 1))
+		if (isAnimating) return
+		setDirection("left")
+		setIsAnimating(true)
+		setTimeout(() => {
+			setActiveIndex(prev => (prev === testimonials.length - 1 ? 0 : prev + 1))
+			setIsAnimating(false)
+		}, 300) // Задержка должна соответствовать длительности анимации
 	}
 
 	// Обработчики свайпа
@@ -90,6 +104,14 @@ const Testimonials = () => {
 		isSwiping.current = false
 	}
 
+	// Получаем класс для анимации в зависимости от направления
+	const getAnimationClass = () => {
+		if (!isAnimating) return ""
+		if (direction === "left") return "animate-slide-out-left"
+		if (direction === "right") return "animate-slide-out-right"
+		return ""
+	}
+
 	return (
 		<section className="py-16 bg-gray-900 text-white">
 			<div className="container mx-auto px-4">
@@ -103,14 +125,24 @@ const Testimonials = () => {
 					</p>
 				</div>
 
-				<div className="max-w-4xl mx-auto">
-					<div className="relative">
+				<div
+					className="max-w-4xl mx-auto cursor-pointer touch-pan-x"
+					onTouchStart={handleTouchStart}
+					onTouchMove={handleTouchMove}
+					onTouchEnd={handleTouchEnd}
+				>
+					<div className="relative overflow-hidden">
 						{/* Testimonial with touch events */}
 						<div
-							className="p-8 bg-gray-800 rounded-lg shadow-xl transition-transform duration-300 cursor-pointer hover:bg-gray-700"
-							onTouchStart={handleTouchStart}
-							onTouchMove={handleTouchMove}
-							onTouchEnd={handleTouchEnd}
+							className={`p-8 bg-gray-800 rounded-lg shadow-xl transition-all duration-300 cursor-pointer hover:bg-gray-700 ${getAnimationClass()}`}
+							style={{
+								transform: isAnimating
+									? direction === "left"
+										? "translateX(-10%)"
+										: "translateX(10%)"
+									: "translateX(0)",
+								opacity: isAnimating ? 0.7 : 1,
+							}}
 						>
 							<div className="flex flex-col md:flex-row md:items-center mb-6">
 								<div className="relative w-20 h-20 rounded-full overflow-hidden mb-4 md:mb-0 md:mr-4">
@@ -148,6 +180,7 @@ const Testimonials = () => {
 						<button
 							className="absolute top-1/2 left-0 -translate-y-1/2 -translate-x-12 bg-red-600 rounded-full p-2 shadow-lg hidden md:block hover:bg-red-700"
 							onClick={handlePrev}
+							disabled={isAnimating}
 						>
 							<svg
 								className="h-6 w-6 text-white"
@@ -166,6 +199,7 @@ const Testimonials = () => {
 						<button
 							className="absolute top-1/2 right-0 -translate-y-1/2 translate-x-12 bg-red-600 rounded-full p-2 shadow-lg hidden md:block hover:bg-red-700"
 							onClick={handleNext}
+							disabled={isAnimating}
 						>
 							<svg
 								className="h-6 w-6 text-white"
@@ -191,7 +225,8 @@ const Testimonials = () => {
 								className={`h-3 w-3 rounded-full ${
 									index === activeIndex ? "bg-red-600" : "bg-gray-600"
 								}`}
-								onClick={() => setActiveIndex(index)}
+								onClick={() => !isAnimating && setActiveIndex(index)}
+								disabled={isAnimating}
 								aria-label={`View testimonial ${index + 1}`}
 							/>
 						))}
@@ -207,7 +242,8 @@ const Testimonials = () => {
 										? "bg-red-600"
 										: "bg-gray-600 hover:bg-gray-500"
 								}`}
-								onClick={() => setActiveIndex(index)}
+								onClick={() => !isAnimating && setActiveIndex(index)}
+								disabled={isAnimating}
 								aria-label={`View testimonial ${index + 1}`}
 							/>
 						))}
