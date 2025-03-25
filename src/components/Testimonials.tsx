@@ -11,7 +11,7 @@ import {
 } from "swiper/modules"
 import { Swiper, SwiperSlide } from "swiper/react"
 
-// Стили Swiper теперь импортируются в layout.tsx
+// Стили Swiper импортируются в layout.tsx
 
 const testimonials = [
 	{
@@ -67,7 +67,7 @@ const Testimonials = () => {
 					<h2 className="text-3xl md:text-4xl font-bold mb-4">
 						Что говорят наши клиенты
 					</h2>
-					<p className="text-gray-300 max-w-2xl mx-auto">
+					<p className="text-gray-100 max-w-2xl mx-auto">
 						Мы ценим отзывы наших клиентов и постоянно работаем над улучшением
 						сервиса
 					</p>
@@ -111,9 +111,9 @@ const Testimonials = () => {
 									key={testimonial.id}
 									className="!w-full max-w-3xl mx-auto"
 								>
-									<div className="p-8 bg-gray-800 rounded-lg shadow-xl transition-all duration-300 hover:bg-gray-700">
+									<div className="p-8 bg-gray-800 md:bg-gray-800 bg-opacity-95 rounded-lg shadow-xl transition-all duration-300 hover:bg-gray-700">
 										<div className="flex flex-col md:flex-row md:items-center mb-6">
-											<div className="relative w-20 h-20 rounded-full overflow-hidden mb-4 md:mb-0 md:mr-4">
+											<div className="relative w-20 h-20 rounded-full overflow-hidden mb-4 md:mb-0 md:mr-4 border-2 border-red-500">
 												<Image
 													src={testimonial.image}
 													alt={testimonial.name}
@@ -136,7 +136,7 @@ const Testimonials = () => {
 											>
 												<path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
 											</svg>
-											<p className="text-lg text-gray-300">
+											<p className="text-base md:text-lg text-white md:text-gray-100 leading-relaxed font-medium">
 												{testimonial.content}
 											</p>
 										</div>

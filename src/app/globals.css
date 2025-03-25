@@ -25,6 +25,38 @@ body {
 	font-family: Arial, Helvetica, sans-serif;
 }
 
+/* Глобальное улучшение читаемости */
+/* Усиливаем контрастность серого текста на всем сайте */
+.text-gray-300,
+.text-gray-400,
+.text-gray-500 {
+	@apply text-gray-100;
+}
+
+/* На темном фоне делаем текст более светлым для лучшей читаемости */
+.bg-gray-800 .text-gray-300,
+.bg-gray-900 .text-gray-300,
+.bg-gray-800 .text-gray-400,
+.bg-gray-900 .text-gray-400 {
+	@apply text-white font-medium;
+}
+
+/* Улучшаем читаемость на мобильных устройствах */
+@media (max-width: 767px) {
+	p,
+	li,
+	span {
+		@apply leading-relaxed;
+	}
+
+	/* Повышаем контрастность текста на мобильных устройствах */
+	.text-gray-200,
+	.text-gray-300,
+	.text-gray-400 {
+		@apply text-white;
+	}
+}
+
 /* Анимации для слайдера отзывов */
 @keyframes slideOutLeft {
 	from {
@@ -95,4 +127,17 @@ body {
 .testimonials-swiper .swiper-button-prev:after {
 	font-size: 18px;
 	font-weight: bold;
+}
+
+/* Улучшенная читаемость для мобильных устройств */
+@media (max-width: 767px) {
+	.testimonials-swiper .swiper-slide {
+		box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+	}
+
+	.testimonials-swiper .swiper-slide p {
+		text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+		letter-spacing: 0.01em;
+		line-height: 1.6;
+	}
 }
