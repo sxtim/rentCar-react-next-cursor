@@ -41,17 +41,6 @@ jobs:
       - name: Build with Next.js
         run: npm run build
 
-      - name: Prepare output directory
-        run: |
-          touch ./out/.nojekyll
-          echo "Listing output directory structure:"
-          find ./out -type f | sort
-
-      - name: Fix paths in HTML files
-        run: |
-          echo "Ensuring paths are correct in HTML files"
-          grep -r "/rentCar-react-next-cursor" ./out --include="*.html" || echo "No matching paths found"
-
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

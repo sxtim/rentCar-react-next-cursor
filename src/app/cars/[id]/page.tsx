@@ -1,50 +1,49 @@
-"use client"
-
 import Footer from "@/components/Footer"
 import Header from "@/components/Header"
-import { getCarById } from "@/data/cars"
+import { cars, getCarById } from "@/data/cars"
+import { Metadata } from "next"
 import Image from "next/image"
 import Link from "next/link"
-import { useParams } from "next/navigation"
-import { useState } from "react"
+import { notFound } from "next/navigation"
 
-export default function CarDetailPage() {
-	const params = useParams()
-	const carId = params.id as string
-	const car = getCarById(carId)
+// Функция для генерации всех возможных маршрутов для статического экспорта
+export function generateStaticParams() {
+	return cars.map(car => ({
+		id: car.id,
+	}))
+}
 
-	const [selectedImageIndex, setSelectedImageIndex] = useState(0)
-	const [rentDays, setRentDays] = useState(1)
+// Функция для генерации метаданных страницы
+export function generateMetadata({
+	params,
+}: {
+	params: { id: string }
+}): Metadata {
+	const car = getCarById(params.id)
 
 	if (!car) {
-		return (
-			<>
-				<Header />
-				<div className="min-h-[60vh] flex items-center justify-center">
-					<div className="text-center p-8">
-						<h1 className="text-3xl font-bold mb-4">Автомобиль не найден</h1>
-						<p className="text-gray-600 mb-8">
-							К сожалению, запрашиваемый автомобиль не найден или был удален.
-						</p>
-						<Link
-							href="/cars"
-							className="px-6 py-3 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
-						>
-							Вернуться к списку автомобилей
-						</Link>
-					</div>
-				</div>
-				<Footer />
-			</>
-		)
-	}
-
-	const handleRentDaysChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const value = parseInt(e.target.value)
-		if (value >= 1 && value <= 30) {
-			setRentDays(value)
+		return {
+			title: "Автомобиль не найден",
 		}
 	}
+
+	return {
+		title: `${car.name} ${car.model} - Аренда автомобилей`,
+		description: car.description.substring(0, 160),
+	}
+}
+
+// Серверный компонент для отображения
+export default function CarDetailPage({ params }: { params: { id: string } }) {
+	const car = getCarById(params.id)
+
+	// Если автомобиль не найден, вернуть страницу 404
+	if (!car) {
+		notFound()
+	}
+
+	// Первое изображение как основное
+	const primaryImage = car.images[0]
 
 	return (
 		<>
@@ -75,7 +74,7 @@ export default function CarDetailPage() {
 								{/* Main Image */}
 								<div className="relative w-full h-[350px] mb-4 rounded-lg overflow-hidden">
 									<Image
-										src={car.images[selectedImageIndex]}
+										src={primaryImage}
 										alt={car.name}
 										fill
 										className="object-cover"
@@ -85,14 +84,9 @@ export default function CarDetailPage() {
 								{/* Thumbnails */}
 								<div className="flex gap-2 overflow-x-auto">
 									{car.images.map((image, index) => (
-										<button
+										<div
 											key={index}
-											onClick={() => setSelectedImageIndex(index)}
-											className={`relative w-20 h-20 flex-shrink-0 rounded-md overflow-hidden ${
-												selectedImageIndex === index
-													? "ring-2 ring-red-600"
-													: ""
-											}`}
+											className={`relative w-20 h-20 flex-shrink-0 rounded-md overflow-hidden`}
 										>
 											<Image
 												src={image}
@@ -100,7 +94,7 @@ export default function CarDetailPage() {
 												fill
 												className="object-cover"
 											/>
-										</button>
+										</div>
 									))}
 								</div>
 							</div>
@@ -160,7 +154,7 @@ export default function CarDetailPage() {
 									</ul>
 								</div>
 
-								{/* Rent Calculator */}
+								{/* Rent Section */}
 								<div className="p-4 bg-gray-50 rounded-lg">
 									<div className="flex items-center justify-between mb-4">
 										<div>
@@ -179,50 +173,16 @@ export default function CarDetailPage() {
 										</div>
 									</div>
 
-									<div className="mb-4">
-										<label
-											htmlFor="rent-days"
-											className="block text-sm font-medium text-gray-700 mb-1"
-										>
-											Срок аренды (дней)
-										</label>
-										<div className="flex items-center">
-											<button
-												onClick={() =>
-													rentDays > 1 && setRentDays(rentDays - 1)
-												}
-												className="bg-gray-200 text-gray-700 h-10 w-10 flex items-center justify-center rounded-l-md"
-											>
-												-
-											</button>
-											<input
-												type="number"
-												id="rent-days"
-												min="1"
-												max="30"
-												value={rentDays}
-												onChange={handleRentDaysChange}
-												className="h-10 px-3 py-2 text-center border-y w-16"
-											/>
-											<button
-												onClick={() =>
-													rentDays < 30 && setRentDays(rentDays + 1)
-												}
-												className="bg-gray-200 text-gray-700 h-10 w-10 flex items-center justify-center rounded-r-md"
-											>
-												+
-											</button>
-										</div>
-									</div>
-
 									<div className="text-lg font-bold flex justify-between mb-4">
-										<span>Итого:</span>
-										<span>{car.pricePerDay * rentDays} ₽</span>
+										<span>Итого (1 день):</span>
+										<span>{car.pricePerDay} ₽</span>
 									</div>
 
-									<button className="w-full py-3 bg-red-600 text-white font-medium rounded-md hover:bg-red-700 transition-colors">
-										Забронировать автомобиль
-									</button>
+									<Link href="/contact">
+										<div className="w-full py-3 bg-red-600 text-white font-medium rounded-md hover:bg-red-700 transition-colors text-center">
+											Забронировать автомобиль
+										</div>
+									</Link>
 								</div>
 							</div>
 						</div>
