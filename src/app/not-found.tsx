@@ -1,11 +1,26 @@
 import Footer from "@/components/Footer"
 import Header from "@/components/Header"
 import Link from "next/link"
+import Script from "next/script"
 
 export default function NotFound() {
 	return (
 		<>
 			<Header />
+			<Script id="redirect-script" strategy="afterInteractive">
+				{`
+				(function() {
+					var basePath = '/rentCar-react-next-cursor';
+					var fullPath = window.location.pathname;
+					var pathToRedirect = fullPath.replace(basePath, '');
+					
+					if (!pathToRedirect.includes('.') && !pathToRedirect.includes('/_next')) {
+						sessionStorage.setItem('redirect', pathToRedirect);
+						window.location.replace(basePath + '/');
+					}
+				})();
+				`}
+			</Script>
 			<div className="container mx-auto px-4 py-20 min-h-[60vh] flex flex-col items-center justify-center text-center">
 				<h1 className="text-4xl md:text-6xl font-bold mb-6">404</h1>
 				<h2 className="text-2xl md:text-3xl font-semibold mb-4">

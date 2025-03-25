@@ -7,6 +7,7 @@ import Testimonials from "@/components/Testimonials"
 import WhyChooseUs from "@/components/WhyChooseUs"
 import { cars } from "@/data/cars"
 import Link from "next/link"
+import Script from "next/script"
 
 export default function Home() {
 	// Выбираем 4 случайных автомобиля для показа на главной странице
@@ -15,6 +16,22 @@ export default function Home() {
 	return (
 		<>
 			<Header />
+			<Script id="check-redirect" strategy="afterInteractive">
+				{`
+				(function() {
+					var basePath = '/rentCar-react-next-cursor';
+					var redirectPath = sessionStorage.getItem('redirect');
+					
+					if (redirectPath) {
+						// Удаляем данные из sessionStorage, чтобы не перенаправляло повторно
+						sessionStorage.removeItem('redirect');
+						
+						// Перенаправляем на сохраненный путь
+						window.location.replace(basePath + redirectPath);
+					}
+				})();
+				`}
+			</Script>
 
 			<main>
 				{/* Hero Banner */}
