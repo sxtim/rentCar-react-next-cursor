@@ -178,7 +178,7 @@ export default function CarDetailPage({ params }: { params: { id: string } }) {
 										<span>{car.pricePerDay} ₽</span>
 									</div>
 
-									<Link href="/contact">
+									<Link href="/contacts">
 										<div className="w-full py-3 bg-red-600 text-white font-medium rounded-md hover:bg-red-700 transition-colors text-center">
 											Забронировать автомобиль
 										</div>
